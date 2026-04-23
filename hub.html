@@ -7,54 +7,60 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f8f5; color: #1a1a1a; }
-.topbar { background: #fff; border-bottom: 0.5px solid #e0dfd7; padding: 14px 28px; display: flex; align-items: center; gap: 12px; }
-.topbar-logo { font-size: 16px; font-weight: 500; }
-.topbar-badge { background: #e8f4e8; color: #1d6e3a; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
-.hero { padding: 48px 28px 32px; max-width: 900px; }
-.hero h1 { font-size: 28px; font-weight: 500; margin-bottom: 8px; }
-.hero p { font-size: 15px; color: #666; line-height: 1.6; max-width: 600px; }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; padding: 0 28px 48px; max-width: 900px; }
+.hero { padding: 48px 28px 32px; max-width: 860px; }
+.hero h1 { font-size: 26px; font-weight: 500; margin-bottom: 8px; }
+.hero p { font-size: 14px; color: #666; line-height: 1.6; max-width: 560px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; padding: 0 28px 48px; max-width: 860px; }
 .card { background: #fff; border: 0.5px solid #e0dfd7; border-radius: 12px; padding: 22px 24px; text-decoration: none; color: inherit; display: block; transition: border-color 0.15s; }
 .card:hover { border-color: #aaa; }
-.card-icon { font-size: 24px; margin-bottom: 12px; }
-.card-title { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
-.card-desc { font-size: 13px; color: #888; line-height: 1.5; }
+.card-icon { font-size: 22px; margin-bottom: 12px; }
+.card-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.card-desc { font-size: 12px; color: #888; line-height: 1.5; }
 .card-badge { display: inline-block; margin-top: 10px; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
 .live { background: #e8f4e8; color: #1d6e3a; }
 .soon { background: #f4f3ef; color: #888; }
+.updated { font-size: 10px; color: #bbb; margin-top: 6px; }
 </style>
 </head>
-<body>
-<div class="topbar">
-  <span class="topbar-logo">⚡ Dartboard Fletch</span>
-  <span class="topbar-badge">Intelligence Hub</span>
-</div>
+<body data-page="hub">
+<div id="topnav"></div>
+<script src="shared-nav.js"></script>
 <div class="hero">
-  <h1>BESS Intelligence Dashboard</h1>
-  <p>Real-time market intelligence for Project Fletch. Data sourced from EIA Form 860/860M, updated monthly.</p>
+  <h1>Fletch Intelligence Hub</h1>
+  <p>Real-time BESS market intelligence for Dartboard. Data sourced from EIA Form 860/860M, updated monthly via eia_bess_monitor.py.</p>
 </div>
 <div class="grid">
   <a class="card" href="index.html">
     <div class="card-icon">🗺️</div>
-    <div class="card-title">BESS Plant Map</div>
-    <div class="card-desc">Interactive US map of all utility-scale battery storage sites. Filter by ISO region, chemistry, status, and owner.</div>
+    <div class="card-title">BESS plant map</div>
+    <div class="card-desc">Interactive US map of all utility-scale battery storage sites. Filter by ISO, chemistry, status, and owner.</div>
     <span class="card-badge live">Live</span>
+    <div class="updated">62 sites · 8,340 MW</div>
+  </a>
+  <a class="card" href="market.html">
+    <div class="card-icon">📈</div>
+    <div class="card-title">Market sizing</div>
+    <div class="card-desc">TAM charts, cumulative capacity growth, top states, application mix, chemistry share, and install cost curve.</div>
+    <span class="card-badge live">Live</span>
+    <div class="updated">30+ GW installed · +89% YoY</div>
   </a>
   <a class="card" href="pipeline.html">
     <div class="card-icon">📋</div>
-    <div class="card-title">Sales Pipeline</div>
-    <div class="card-desc">New BESS projects entering the EIA-860M pipeline each month. Your automated prospecting lead feed.</div>
-    <span class="card-badge soon">Coming soon</span>
+    <div class="card-title">Sales pipeline</div>
+    <div class="card-desc">New BESS projects entering EIA-860M each month. Your automated outbound prospecting lead feed.</div>
+    <span class="card-badge live">Live</span>
+    <div class="updated">18 new leads · Apr 2026</div>
   </a>
   <a class="card" href="insurance.html">
     <div class="card-icon">🛡️</div>
-    <div class="card-title">Insurance Brief</div>
-    <div class="card-desc">Regional BESS capacity and failure rates by ISO. Actuary-ready data for premium negotiations.</div>
-    <span class="card-badge soon">Coming soon</span>
+    <div class="card-title">Insurance brief</div>
+    <div class="card-desc">Retirement rates by ISO, failure type breakdown, premium trend, and revenue-at-risk. Actuary-ready data.</div>
+    <span class="card-badge live">Live</span>
+    <div class="updated">47 failure records · CAISO highest risk</div>
   </a>
-  <a class="card" href="ml.html">
+  <a class="card" href="#">
     <div class="card-icon">🧠</div>
-    <div class="card-title">ML Failure Labels</div>
+    <div class="card-title">ML failure labels</div>
     <div class="card-desc">Retired and cancelled BESS assets from EIA-860 annual. Ground-truth data for Fletch predictive models.</div>
     <span class="card-badge soon">Coming soon</span>
   </a>
