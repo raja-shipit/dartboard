@@ -8,34 +8,10 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f8f5; color: #1a1a1a; }
 
-  /* ── Auth gate ── */
-  #auth-gate {
-    position: fixed; inset: 0; background: #f9f8f5;
-    display: flex; align-items: center; justify-content: center; z-index: 9999;
-  }
-  #auth-box {
-    background: #fff; border: 0.5px solid #d0cfc7; border-radius: 12px;
-    padding: 40px 48px; width: 380px; text-align: center;
-  }
-  #auth-box .logo { font-size: 22px; font-weight: 500; margin-bottom: 6px; }
-  #auth-box .sub { font-size: 13px; color: #888; margin-bottom: 28px; }
-  #auth-box input {
-    width: 100%; padding: 10px 14px; border: 0.5px solid #d0cfc7;
-    border-radius: 8px; font-size: 14px; margin-bottom: 12px; outline: none;
-    font-family: inherit;
-  }
-  #auth-box input:focus { border-color: #888; }
-  #auth-box button {
-    width: 100%; padding: 10px; background: #1a1a1a; color: #fff;
-    border: none; border-radius: 8px; font-size: 14px; cursor: pointer;
-    font-family: inherit; font-weight: 500;
-  }
-  #auth-box button:hover { background: #333; }
-  #auth-error { color: #c0392b; font-size: 12px; margin-top: 8px; display: none; }
-  #auth-hint { font-size: 11px; color: #aaa; margin-top: 16px; }
+  /* Auth handled server-side by Cloudflare Access */
 
   /* ── Main app ── */
-  #app { display: none; }
+  #app { display: block; }
   .topbar {
     background: #fff; border-bottom: 0.5px solid #e0dfd7;
     padding: 12px 24px; display: flex; align-items: center; justify-content: space-between;
@@ -103,18 +79,7 @@
 </head>
 <body>
 
-<!-- ── Auth Gate ──────────────────────────────────────────────────────────── -->
-<div id="auth-gate">
-  <div id="auth-box">
-    <div class="logo">⚡ Dartboard Fletch</div>
-    <div class="sub">BESS Intelligence Map · Internal Access Only</div>
-    <input type="email" id="auth-email" placeholder="your@dartboard.com" autocomplete="email" />
-    <input type="password" id="auth-pass" placeholder="Team passphrase" autocomplete="current-password" />
-    <button onclick="authenticate()">Sign in</button>
-    <div id="auth-error">Invalid credentials. Contact your admin.</div>
-    <div id="auth-hint">Access restricted to @dartboard.com accounts</div>
-  </div>
-</div>
+<!-- Auth is handled by Cloudflare Access (Google SSO) before this page loads -->
 
 <!-- ── Main App ───────────────────────────────────────────────────────────── -->
 <div id="app">
