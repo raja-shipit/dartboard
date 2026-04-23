@@ -149,19 +149,18 @@
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js" onload="window._d3Ready=true; window._tryInit && window._tryInit()"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js" onload="window._topoReady=true; window._tryInit && window._tryInit()"></script>
 <script>
 // ── Auth ─────────────────────────────────────────────────────────────────────
 // IMPORTANT: Replace this with your real auth (Google OAuth, Azure AD, etc.)
 // For now: domain check + shared passphrase stored in sessionStorage
-// Access control is handled by Cloudflare Access (Google SSO).
-// No credentials stored here.
-window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('auth-gate').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  initMap();
-});
+// Wait for both D3 and TopoJSON to load before initialising the map
+window._d3Ready = false;
+window._topoReady = false;
+window._tryInit = function() {
+  if (window._d3Ready && window._topoReady) initMap();
+};
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 const ISO_MAP = {
@@ -350,8 +349,7 @@ function redraw() {
   updateTable(fp);
 }
 
-// Auto-init if already authenticated (page reload)
-if (sessionStorage.getItem('fletch_auth')) initMap();
+// Map initialises automatically once D3 + TopoJSON fire their onload events above.
 </script>
 </body>
 </html>
