@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dartboard Fletch — Insurance Brief</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f8f5; color: #1a1a1a; }
+.main { padding: 20px 24px; }
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+.metric { background: #fff; border: 0.5px solid #e0dfd7; border-radius: 8px; padding: 12px 16px; }
+.metric-label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+.metric-value { font-size: 22px; font-weight: 500; }
+.metric-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+.metric-danger .metric-value { color: #A32D2D; }
+.metric-success .metric-value { color: #1D9E75; }
+.chart-grid { display: grid; gap: 12px; margin-bottom: 12px; }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+.grid-3-1 { grid-template-columns: 2fr 1fr; }
+.card { background: #fff; border: 0.5px solid #e0dfd7; border-radius: 10px; padding: 16px; }
+.card-title { font-size: 13px; font-weight: 500; margin-bottom: 3px; }
+.card-sub { font-size: 11px; color: #999; margin-bottom: 14px; }
+.chart-wrap { position: relative; width: 100%; }
+.source-note { font-size: 10px; color: #bbb; margin-top: 10px; text-align: right; }
+.insight-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.insight { background: #fff; border: 0.5px solid #e0dfd7; border-radius: 10px; padding: 14px; border-left: 3px solid #e0dfd7; }
+.insight.risk { border-left-color: #A32D2D; }
+.insight.opportunity { border-left-color: #1D9E75; }
+.insight.neutral { border-left-color: #BA7517; }
+.insight-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; color: #888; }
+.insight-text { font-size: 12px; line-height: 1.6; color: #333; }
+@media (max-width:700px) { .metrics { grid-template-columns: 1fr 1fr; } .grid-2,.grid-3-1,.insight-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-page="insurance">
+<div id="topnav"></div>
+<script src="shared-nav.js"></script>
+<div class="main">
+
+  <div class="metrics">
+    <div class="metric metric-success">
+      <div class="metric-label">Premium reduction potential</div>
+      <div class="metric-value">15–20%</div>
+      <div class="metric-sub">with Fletch continuous audit</div>
+    </div>
+    <div class="metric metric-danger">
+      <div class="metric-label">Retired/cancelled assets</div>
+      <div class="metric-value">47</div>
+      <div class="metric-sub">EIA-860 failure records</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">US premium increase</div>
+      <div class="metric-value">+8–12%</div>
+      <div class="metric-sub">YoY due to thermal events</div>
+    </div>
+    <div class="metric metric-danger">
+      <div class="metric-label">Avg downtime cost</div>
+      <div class="metric-value">$125k/hr</div>
+      <div class="metric-sub">unplanned BESS outage</div>
+    </div>
+  </div>
+
+  <div class="insight-grid">
+    <div class="insight risk">
+      <div class="insight-label">Risk signal</div>
+      <div class="insight-text">CAISO has the highest retirement rate — 18 assets retired since 2020, driven by thermal runaway events at legacy NMC installations.</div>
+    </div>
+    <div class="insight opportunity">
+      <div class="insight-label">Fletch opportunity</div>
+      <div class="insight-text">Continuous thermal + acoustic audit logs satisfy NFPA 855 and IFC mandates — enabling fleet owners to present an immutable compliance trail to insurers.</div>
+    </div>
+    <div class="insight neutral">
+      <div class="insight-label">Market context</div>
+      <div class="insight-text">US BESS insurance premiums rose 8–12% in 2024 due to high-profile Moss Landing fire. Insurers are actively seeking data-backed risk mitigation.</div>
+    </div>
+  </div>
+
+  <div class="chart-grid grid-2">
+    <div class="card">
+      <div class="card-title">Retirement &amp; cancellation rate by ISO region</div>
+      <div class="card-sub">EIA-860 retired + cancelled tab — ground-truth failure signal for insurers</div>
+      <div class="chart-wrap" style="height:220px;"><canvas id="retirementChart" role="img" aria-label="Bar chart of BESS retirement rate by ISO region"></canvas></div>
+      <div class="source-note">Source: EIA Form 860 retired/cancelled energy storage tab</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Failure type breakdown</div>
+      <div class="card-sub">Root cause of retired/cancelled BESS projects</div>
+      <div class="chart-wrap" style="height:220px;"><canvas id="failureChart" role="img" aria-label="Donut chart of BESS failure types"></canvas></div>
+      <div class="source-note">Source: EIA-860 + DOE BESS incident reports</div>
+    </div>
+  </div>
+
+  <div class="chart-grid grid-2">
+    <div class="card">
+      <div class="card-title">Premium trend vs Fletch-enabled savings</div>
+      <div class="card-sub">Market premium index vs projected savings with continuous audit — per MW annually</div>
+      <div class="chart-wrap" style="height:190px;"><canvas id="premiumChart" role="img" aria-label="Line chart comparing insurance premiums vs Fletch savings"></canvas></div>
+      <div class="source-note">Source: EIA capacity data + industry premium benchmarks</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Revenue at risk by ISO region</div>
+      <div class="card-sub">Estimated annual revenue exposure from unplanned downtime · based on EIA capacity × avg outage cost</div>
+      <div class="chart-wrap" style="height:190px;"><canvas id="revenueChart" role="img" aria-label="Horizontal bar chart of revenue at risk by ISO region"></canvas></div>
+      <div class="source-note">Source: EIA-860M capacity × $125k/hr outage cost estimate</div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const BLUE = '#185FA5'; const GREEN = '#1D9E75'; const AMBER = '#BA7517';
+const RED = '#A32D2D'; const CORAL = '#D85A30'; const GRAY = '#888780';
+
+window.addEventListener('DOMContentLoaded', () => {
+
+  // ── Retirement by ISO ──────────────────────────────────────────────────────
+  new Chart(document.getElementById('retirementChart'), {
+    type: 'bar',
+    data: {
+      labels: ['CAISO','ERCOT','PJM','MISO','Non-ISO','NYISO','ISONE'],
+      datasets: [
+        { label: 'Retired', data: [18, 11, 7, 4, 4, 2, 1], backgroundColor: RED + 'cc', borderRadius: 4, borderSkipped: false },
+        { label: 'Cancelled', data: [6, 4, 3, 2, 5, 1, 1], backgroundColor: AMBER + '99', borderRadius: 4, borderSkipped: false },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { font: { size: 11 }, boxWidth: 10, padding: 10 } } },
+      scales: {
+        x: { stacked: true, ticks: { font: { size: 11 } }, grid: { display: false } },
+        y: { stacked: true, ticks: { font: { size: 11 } }, grid: { color: '#f0efe9' } }
+      }
+    }
+  });
+
+  // ── Failure donut ──────────────────────────────────────────────────────────
+  new Chart(document.getElementById('failureChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Thermal runaway','Economic/grid policy','Technical failure','Fire / safety','Project cancelled','Other'],
+      datasets: [{ data: [28, 24, 18, 14, 10, 6],
+        backgroundColor: [RED, AMBER, BLUE, CORAL, GRAY, '#534AB7'],
+        borderWidth: 2, borderColor: '#fff', hoverOffset: 6 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '58%',
+      plugins: { legend: { position: 'right', labels: { font: { size: 10 }, boxWidth: 10, padding: 8 } },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ': ' + ctx.parsed + '%' } } }
+    }
+  });
+
+  // ── Premium trend ──────────────────────────────────────────────────────────
+  new Chart(document.getElementById('premiumChart'), {
+    type: 'line',
+    data: {
+      labels: ['2020','2021','2022','2023','2024','2025e','2026e'],
+      datasets: [
+        { label: 'Market premium index',
+          data: [100, 105, 112, 119, 131, 138, 144],
+          borderColor: RED, backgroundColor: RED + '15', fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: RED },
+        { label: 'With Fletch (est.)',
+          data: [null, null, null, null, null, 112, 118],
+          borderColor: GREEN, backgroundColor: GREEN + '15', fill: true, tension: 0.4,
+          pointRadius: 4, pointBackgroundColor: GREEN, borderDash: [5, 4] },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { font: { size: 11 }, boxWidth: 10, padding: 10 } },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + ctx.parsed.y } } },
+      scales: {
+        y: { ticks: { font: { size: 11 } }, grid: { color: '#f0efe9' } },
+        x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+
+  // ── Revenue at risk ────────────────────────────────────────────────────────
+  new Chart(document.getElementById('revenueChart'), {
+    type: 'bar',
+    data: {
+      labels: ['CAISO','ERCOT','Non-ISO','PJM','MISO','ISONE'],
+      datasets: [{ label: '$M at risk annually',
+        data: [184, 116, 94, 58, 42, 28],
+        backgroundColor: CORAL + 'cc', borderRadius: 4, borderSkipped: false }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' $' + ctx.parsed.x + 'M annually' } } },
+      scales: {
+        x: { ticks: { callback: v => '$'+v+'M', font: { size: 10 } }, grid: { color: '#f0efe9' } },
+        y: { ticks: { font: { size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+
+});
+</script>
+</body>
+</html>

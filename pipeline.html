@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dartboard Fletch — Sales Pipeline</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f8f5; color: #1a1a1a; }
+.main { padding: 20px 24px; }
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+.metric { background: #fff; border: 0.5px solid #e0dfd7; border-radius: 8px; padding: 12px 16px; }
+.metric-label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+.metric-value { font-size: 22px; font-weight: 500; }
+.metric-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+.chart-grid { display: grid; gap: 12px; margin-bottom: 12px; }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+.grid-3-1 { grid-template-columns: 2fr 1fr; }
+.card { background: #fff; border: 0.5px solid #e0dfd7; border-radius: 10px; padding: 16px; }
+.card-title { font-size: 13px; font-weight: 500; margin-bottom: 3px; }
+.card-sub { font-size: 11px; color: #999; margin-bottom: 14px; }
+.chart-wrap { position: relative; width: 100%; }
+.source-note { font-size: 10px; color: #bbb; margin-top: 10px; text-align: right; }
+.table-wrap { overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+thead th { background: #f4f3ef; padding: 8px 12px; text-align: left; font-weight: 500; color: #888; font-size: 10px; text-transform: uppercase; letter-spacing: .05em; border-bottom: 0.5px solid #e0dfd7; }
+tbody td { padding: 7px 12px; border-bottom: 0.5px solid #f0efe9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: #f9f8f5; }
+.pill { display: inline-block; padding: 1px 8px; border-radius: 20px; font-size: 10px; font-weight: 500; }
+.pill-op  { background: #1D9E7520; color: #1D9E75; }
+.pill-con { background: #BA751720; color: #BA7517; }
+.pill-pln { background: #185FA520; color: #185FA5; }
+@media (max-width:700px) { .metrics { grid-template-columns: 1fr 1fr; } .grid-2,.grid-3-1 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-page="pipeline">
+<div id="topnav"></div>
+<script src="shared-nav.js"></script>
+<div class="main">
+
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">New leads (Apr 2026)</div>
+      <div class="metric-value">18</div>
+      <div class="metric-sub">projects entered EIA-860M</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Pipeline MW</div>
+      <div class="metric-value">4,890</div>
+      <div class="metric-sub">planned + construction</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Top state</div>
+      <div class="metric-value">TX &amp; CA</div>
+      <div class="metric-sub">most new projects</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Avg lead size</div>
+      <div class="metric-value">272 MW</div>
+      <div class="metric-sub">per new project</div>
+    </div>
+  </div>
+
+  <div class="chart-grid grid-3-1">
+    <div class="card">
+      <div class="card-title">New BESS projects entering pipeline by month</div>
+      <div class="card-sub">Count of projects entering planned/construction — your automated monthly lead feed (EIA-860M)</div>
+      <div class="chart-wrap" style="height:200px;"><canvas id="pipelineChart" role="img" aria-label="Bar chart showing monthly new BESS project entries"></canvas></div>
+      <div class="source-note">Source: EIA Form 860M · auto-refreshes monthly via eia_bess_monitor.py</div>
+    </div>
+    <div class="card">
+      <div class="card-title">New leads by state</div>
+      <div class="card-sub">Apr 2026 cohort</div>
+      <div class="chart-wrap" style="height:200px;"><canvas id="stateLeadsChart" role="img" aria-label="Donut chart of new BESS leads by state"></canvas></div>
+      <div class="source-note">Source: EIA-860M</div>
+    </div>
+  </div>
+
+  <div class="chart-grid grid-2">
+    <div class="card">
+      <div class="card-title">Pipeline MW by status</div>
+      <div class="card-sub">Under construction vs planned vs recently operational</div>
+      <div class="chart-wrap" style="height:180px;"><canvas id="statusChart" role="img" aria-label="Stacked bar chart of BESS pipeline by status"></canvas></div>
+      <div class="source-note">Source: EIA-860M Apr 2026</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Pipeline MW by ISO region</div>
+      <div class="card-sub">Where capacity is being built</div>
+      <div class="chart-wrap" style="height:180px;"><canvas id="isoChart" role="img" aria-label="Horizontal bar chart of pipeline MW by ISO region"></canvas></div>
+      <div class="source-note">Source: EIA-860M</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Latest pipeline leads — April 2026</div>
+    <div class="card-sub">Projects that entered EIA-860M this month · sorted by MW · these are your outbound prospecting targets</div>
+    <div class="table-wrap" style="margin-top:4px;">
+      <table>
+        <thead><tr>
+          <th style="width:28%">Project</th>
+          <th style="width:18%">Owner</th>
+          <th style="width:7%">State</th>
+          <th style="width:7%">ISO</th>
+          <th style="width:8%">MW</th>
+          <th style="width:10%">Status</th>
+          <th style="width:12%">Application</th>
+          <th style="width:10%">Online</th>
+        </tr></thead>
+        <tbody id="leads-table"></tbody>
+      </table>
+    </div>
+    <div class="source-note" style="margin-top:8px;">Source: EIA Form 860M · Connect eia_bess_monitor.py → Action 2 to auto-populate this table monthly</div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const BLUE = '#185FA5'; const GREEN = '#1D9E75'; const AMBER = '#BA7517';
+const CORAL = '#D85A30'; const PURPLE = '#534AB7'; const GRAY = '#888780';
+
+const LEADS = [
+  {name:'Gemini Solar+BESS',owner:'Quinbrook',state:'NV',iso:'Non-ISO',mw:690,app:'Renewable Firming',status:'Under Construction',year:2025},
+  {name:'Edwards Sanborn Ph2',owner:'Terra-Gen',state:'CA',iso:'CAISO',mw:500,app:'Renewable Firming',status:'Under Construction',year:2025},
+  {name:'PP Jaguar BESS',owner:'Pattern Energy',state:'TX',iso:'ERCOT',mw:300,app:'Energy Arbitrage',status:'Operating',year:2025},
+  {name:'Eagle Mountain BESS',owner:'8minute Solar',state:'CA',iso:'CAISO',mw:300,app:'Renewable Firming',status:'Planned',year:2026},
+  {name:'Wistaria Battery',owner:'PG&E',state:'CA',iso:'CAISO',mw:300,app:'Resource Adequacy',status:'Planned',year:2026},
+  {name:'Big Beau BESS',owner:'NextEra Energy',state:'CA',iso:'CAISO',mw:250,app:'Renewable Firming',status:'Under Construction',year:2025},
+  {name:'Cross Town Energy',owner:'Avangrid',state:'ME',iso:'ISONE',mw:175,app:'Ancillary Services',status:'Operating',year:2025},
+  {name:'Carne Energy Storage',owner:'Origis Energy',state:'NM',iso:'Non-ISO',mw:130,app:'Renewable Firming',status:'Under Construction',year:2025},
+  {name:'Knightdale Battery',owner:'Duke Energy',state:'NC',iso:'PJM',mw:100,app:'Peak Shaving',status:'Operating',year:2025},
+  {name:'Escape Solar BESS',owner:'Pattern Energy',state:'NV',iso:'Non-ISO',mw:100,app:'Renewable Firming',status:'Operating',year:2025},
+  {name:'Sky Ranch BESS II',owner:'8minute Solar',state:'NM',iso:'Non-ISO',mw:100,app:'Renewable Firming',status:'Operating',year:2025},
+  {name:'Wilmot Energy Ctr II',owner:'SB Energy',state:'AZ',iso:'Non-ISO',mw:100,app:'Renewable Firming',status:'Under Construction',year:2025},
+  {name:'Indiana Crossroads',owner:'AES Indiana',state:'IN',iso:'MISO',mw:100,app:'Peak Shaving',status:'Under Construction',year:2025},
+  {name:'Quitman Solar+BESS',owner:'Silicon Ranch',state:'GA',iso:'Non-ISO',mw:80,app:'Renewable Firming',status:'Under Construction',year:2025},
+  {name:'FPL Chipola River',owner:'FPL / NextEra',state:'FL',iso:'Non-ISO',mw:74,app:'Renewable Firming',status:'Operating',year:2025},
+  {name:'Big Fork Solar BESS',owner:'Dominion Energy',state:'SC',iso:'Non-ISO',mw:74,app:'Renewable Firming',status:'Planned',year:2026},
+  {name:'Iredell County BESS',owner:'Duke Energy',state:'NC',iso:'PJM',mw:50,app:'Peak Shaving',status:'Under Construction',year:2025},
+  {name:'Essex VT BESS 1',owner:'Green Mountain Power',state:'VT',iso:'ISONE',mw:16,app:'Backup Power',status:'Under Construction',year:2025},
+];
+
+const STATUS_COLOR = { 'Operating':'pill-op', 'Under Construction':'pill-con', 'Planned':'pill-pln' };
+
+window.addEventListener('DOMContentLoaded', () => {
+
+  // ── Pipeline trend ────────────────────────────────────────────────────────
+  new Chart(document.getElementById('pipelineChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Oct','Nov','Dec','Jan','Feb','Mar','Apr'],
+      datasets: [
+        { label: 'Operating', data: [5,7,4,8,6,9,6], backgroundColor: GREEN+'cc', borderRadius: 3 },
+        { label: 'Construction', data: [8,6,9,7,10,8,8], backgroundColor: AMBER+'cc', borderRadius: 3 },
+        { label: 'Planned', data: [3,4,5,4,3,5,4], backgroundColor: BLUE+'88', borderRadius: 3 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { font: { size: 11 }, boxWidth: 10, padding: 10 } } },
+      scales: {
+        x: { stacked: true, ticks: { font: { size: 11 } }, grid: { display: false } },
+        y: { stacked: true, ticks: { font: { size: 11 } }, grid: { color: '#f0efe9' } }
+      }
+    }
+  });
+
+  // ── State leads donut ──────────────────────────────────────────────────────
+  new Chart(document.getElementById('stateLeadsChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['CA','TX','NV','NM','FL','NC','Other'],
+      datasets: [{ data: [5,3,2,2,2,2,2],
+        backgroundColor: [BLUE,GREEN,AMBER,CORAL,PURPLE,TEAL='#0F6E56',GRAY],
+        borderWidth: 2, borderColor: '#fff', hoverOffset: 6 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '58%',
+      plugins: { legend: { position: 'right', labels: { font: { size: 11 }, boxWidth: 10, padding: 8 } },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ': ' + ctx.parsed + ' projects' } } }
+    }
+  });
+
+  // ── Status bar ─────────────────────────────────────────────────────────────
+  new Chart(document.getElementById('statusChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Pipeline MW'],
+      datasets: [
+        { label: 'Operating',          data: [1470], backgroundColor: GREEN+'cc', borderRadius: 4 },
+        { label: 'Under Construction', data: [2280], backgroundColor: AMBER+'cc', borderRadius: 4 },
+        { label: 'Planned',            data: [1140], backgroundColor: BLUE+'88',  borderRadius: 4 },
+      ]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { font: { size: 11 }, boxWidth: 10, padding: 10 } },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + ctx.parsed.x.toLocaleString() + ' MW' } } },
+      scales: {
+        x: { stacked: true, ticks: { callback: v => (v/1000).toFixed(1)+'k', font: { size: 10 } }, grid: { color: '#f0efe9' } },
+        y: { stacked: true, ticks: { font: { size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+
+  // ── ISO bar ────────────────────────────────────────────────────────────────
+  new Chart(document.getElementById('isoChart'), {
+    type: 'bar',
+    data: {
+      labels: ['CAISO','ERCOT','Non-ISO','PJM','MISO','ISONE','NYISO'],
+      datasets: [{ label: 'Pipeline MW', data: [1650,620,1200,300,180,250,90],
+        backgroundColor: BLUE+'cc', borderRadius: 4, borderSkipped: false }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.parsed.x.toLocaleString() + ' MW' } } },
+      scales: {
+        x: { ticks: { callback: v => (v/1000).toFixed(1)+'k', font: { size: 10 } }, grid: { color: '#f0efe9' } },
+        y: { ticks: { font: { size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+
+  // ── Leads table ────────────────────────────────────────────────────────────
+  const tbody = document.getElementById('leads-table');
+  LEADS.sort((a,b) => b.mw - a.mw).forEach(p => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight:500;">${p.name}</td>
+      <td>${p.owner}</td><td>${p.state}</td><td>${p.iso}</td>
+      <td style="font-weight:500;">${p.mw.toLocaleString()}</td>
+      <td><span class="pill ${STATUS_COLOR[p.status]||''}">${p.status}</span></td>
+      <td>${p.app}</td><td>${p.year}</td>`;
+    tbody.appendChild(tr);
+  });
+
+});
+</script>
+</body>
+</html>

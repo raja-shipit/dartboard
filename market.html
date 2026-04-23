@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dartboard Fletch — Market Sizing</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f8f5; color: #1a1a1a; }
+.main { padding: 20px 24px; }
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+.metric { background: #fff; border: 0.5px solid #e0dfd7; border-radius: 8px; padding: 12px 16px; }
+.metric-label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+.metric-value { font-size: 22px; font-weight: 500; }
+.metric-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+.chart-grid { display: grid; gap: 12px; margin-bottom: 12px; }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+.grid-3-1 { grid-template-columns: 2fr 1fr; }
+.grid-3-eq { grid-template-columns: 1fr 1fr 1fr; }
+.card { background: #fff; border: 0.5px solid #e0dfd7; border-radius: 10px; padding: 16px; }
+.card-title { font-size: 13px; font-weight: 500; margin-bottom: 3px; }
+.card-sub { font-size: 11px; color: #999; margin-bottom: 14px; }
+.chart-wrap { position: relative; width: 100%; }
+.source-note { font-size: 10px; color: #bbb; margin-top: 10px; text-align: right; }
+@media (max-width: 700px) { .metrics { grid-template-columns: 1fr 1fr; } .grid-2,.grid-3-1,.grid-3-eq { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-page="market">
+<div id="topnav"></div>
+<script src="shared-nav.js"></script>
+<div class="main">
+
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">US installed capacity</div>
+      <div class="metric-value">30+ GW</div>
+      <div class="metric-sub">end of 2024 (EIA-860M)</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">YoY growth</div>
+      <div class="metric-value">+89%</div>
+      <div class="metric-sub">2023 → 2024</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Avg install cost</div>
+      <div class="metric-value">$280/kWh</div>
+      <div class="metric-sub">utility-scale LFP 2024</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">EIA 2026 forecast</div>
+      <div class="metric-value">~57 GW</div>
+      <div class="metric-sub">projected US capacity</div>
+    </div>
+  </div>
+
+  <div class="chart-grid grid-3-1">
+    <div class="card">
+      <div class="card-title">Cumulative US BESS capacity 2018–2026</div>
+      <div class="card-sub">GW installed, source: EIA-860 annual + AEO 2026 forecast</div>
+      <div class="chart-wrap" style="height:220px;"><canvas id="growthChart" role="img" aria-label="Line chart of cumulative US BESS capacity from 2018 to 2026"></canvas></div>
+      <div class="source-note">Source: EIA Form 860 / AEO 2026</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Top 8 states by MW</div>
+      <div class="card-sub">Operating capacity</div>
+      <div class="chart-wrap" style="height:220px;"><canvas id="statesChart" role="img" aria-label="Horizontal bar chart of top 8 US states by BESS capacity"></canvas></div>
+      <div class="source-note">Source: EIA-860M Apr 2026</div>
+    </div>
+  </div>
+
+  <div class="chart-grid grid-2">
+    <div class="card">
+      <div class="card-title">Primary application mix</div>
+      <div class="card-sub">% of projects by primary use case</div>
+      <div class="chart-wrap" style="height:200px;"><canvas id="appChart" role="img" aria-label="Horizontal bar chart of BESS applications"></canvas></div>
+      <div class="source-note">Source: EIA-860 energy storage tab</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Battery chemistry share</div>
+      <div class="card-sub">% of total MW by chemistry type</div>
+      <div class="chart-wrap" style="height:200px;"><canvas id="chemChart" role="img" aria-label="Donut chart of battery chemistry share"></canvas></div>
+      <div class="source-note">Source: EIA-860 energy storage tab</div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="card">
+      <div class="card-title">Install cost trend ($/kWh) — utility-scale lithium-ion</div>
+      <div class="card-sub">Declining cost curve drives rapid adoption</div>
+      <div class="chart-wrap" style="height:180px;"><canvas id="costChart" role="img" aria-label="Line chart of BESS install cost per kWh from 2016 to 2024"></canvas></div>
+      <div class="source-note">Source: EIA Battery Storage Market Trends 2024</div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const BLUE   = '#185FA5';
+const GREEN  = '#1D9E75';
+const AMBER  = '#BA7517';
+const CORAL  = '#D85A30';
+const PURPLE = '#534AB7';
+const GRAY   = '#888780';
+const TEAL   = '#0F6E56';
+
+window.addEventListener('DOMContentLoaded', () => {
+
+  // ── Growth chart ──────────────────────────────────────────────────────────
+  new Chart(document.getElementById('growthChart'), {
+    type: 'line',
+    data: {
+      labels: ['2018','2019','2020','2021','2022','2023','2024','2025e','2026f'],
+      datasets: [{
+        label: 'Installed GW',
+        data: [0.9, 1.4, 1.7, 4.6, 8.1, 16.0, 30.2, 42.0, 57.0],
+        borderColor: BLUE, backgroundColor: BLUE + '18',
+        fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: BLUE,
+        borderDash: [0,0],
+      },{
+        label: 'Forecast',
+        data: [null,null,null,null,null,null,30.2,42.0,57.0],
+        borderColor: BLUE, backgroundColor: 'transparent',
+        fill: false, tension: 0.4, pointRadius: 4, pointBackgroundColor: BLUE,
+        borderDash: [5,4],
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.parsed.y + ' GW' } } },
+      scales: {
+        y: { ticks: { callback: v => v + ' GW', font: { size: 11 } }, grid: { color: '#f0efe9' } },
+        x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+
+  // ── States chart ──────────────────────────────────────────────────────────
+  new Chart(document.getElementById('statesChart'), {
+    type: 'bar',
+    data: {
+      labels: ['CA','TX','FL','NV','AZ','NY','IL','NC'],
+      datasets: [{ label: 'MW', data: [9200, 5800, 2100, 1800, 900, 750, 600, 420],
+        backgroundColor: BLUE + 'cc', borderRadius: 4, borderSkipped: false }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.parsed.x.toLocaleString() + ' MW' } } },
+      scales: {
+        x: { ticks: { callback: v => (v/1000).toFixed(0)+'k', font: { size: 10 } }, grid: { color: '#f0efe9' } },
+        y: { ticks: { font: { size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+
+  // ── Application chart ─────────────────────────────────────────────────────
+  new Chart(document.getElementById('appChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Renewable firming','Energy arbitrage','Frequency regulation','Peak shaving','Resource adequacy','Ancillary services','Backup power'],
+      datasets: [{ label: '% of projects',
+        data: [38, 24, 14, 10, 7, 5, 2],
+        backgroundColor: [BLUE,GREEN,AMBER,CORAL,PURPLE,TEAL,GRAY].map(c => c + 'cc'),
+        borderRadius: 4, borderSkipped: false }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.parsed.x + '%' } } },
+      scales: {
+        x: { ticks: { callback: v => v+'%', font: { size: 10 } }, max: 45, grid: { color: '#f0efe9' } },
+        y: { ticks: { font: { size: 10 } }, grid: { display: false } }
+      }
+    }
+  });
+
+  // ── Chemistry donut ───────────────────────────────────────────────────────
+  new Chart(document.getElementById('chemChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['LFP','NMC','NCA','Flow','Lead Acid','Other'],
+      datasets: [{ data: [61, 27, 5, 4, 2, 1],
+        backgroundColor: [BLUE, GREEN, AMBER, CORAL, GRAY, PURPLE],
+        borderWidth: 2, borderColor: '#fff', hoverOffset: 6 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '62%',
+      plugins: { legend: { position: 'right', labels: { font: { size: 11 }, padding: 10, boxWidth: 12 } },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ': ' + ctx.parsed + '%' } } }
+    }
+  });
+
+  // ── Cost trend ────────────────────────────────────────────────────────────
+  new Chart(document.getElementById('costChart'), {
+    type: 'line',
+    data: {
+      labels: ['2016','2017','2018','2019','2020','2021','2022','2023','2024'],
+      datasets: [{ label: '$/kWh',
+        data: [780, 680, 590, 490, 380, 320, 295, 280, 255],
+        borderColor: CORAL, backgroundColor: CORAL + '18',
+        fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: CORAL }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' $' + ctx.parsed.y + '/kWh' } } },
+      scales: {
+        y: { ticks: { callback: v => '$'+v, font: { size: 11 } }, grid: { color: '#f0efe9' } },
+        x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+
+});
+</script>
+</body>
+</html>

@@ -77,21 +77,15 @@
   }
 </style>
 </head>
-<body>
+<body data-page="map">
 
 <!-- Auth is handled by Cloudflare Access (Google SSO) before this page loads -->
 
 <!-- ── Main App ───────────────────────────────────────────────────────────── -->
-<div id="app">
-  <div class="topbar">
-    <div class="topbar-left">
-      <span class="topbar-logo">⚡ Dartboard Fletch</span>
-      <span class="topbar-badge">BESS Intelligence Map</span>
-    </div>
-    <span class="topbar-user" id="topbar-user"></span>
-  </div>
+<div id="topnav"></div>
+<script src="shared-nav.js"></script>
 
-  <div class="main">
+<div class="main">
     <div class="metric-row">
       <div class="metric"><div class="metric-label">BESS sites</div><div class="metric-value" id="m-sites">—</div><div class="metric-sub">utility-scale ≥1 MW</div></div>
       <div class="metric"><div class="metric-label">Total capacity</div><div class="metric-value" id="m-mw">—</div><div class="metric-sub">megawatts</div></div>
