@@ -82,9 +82,9 @@
 <!-- Auth is handled by Cloudflare Access (Google SSO) before this page loads -->
 
 <!-- ── Main App ───────────────────────────────────────────────────────────── -->
-<div id="topnav"></div>
+<div id="app">
+  <div id="topnav"></div>
 <script src="shared-nav.js"></script>
-
 <div class="main">
     <div class="metric-row">
       <div class="metric"><div class="metric-label">BESS sites</div><div class="metric-value" id="m-sites">—</div><div class="metric-sub">utility-scale ≥1 MW</div></div>
@@ -180,8 +180,10 @@ const STATUS_COLOR = {
   "Planned":"#185FA5","Cancelled":"#A32D2D"
 };
 
-// Data loaded from bess_plants.js (EIA Form 860, 2024 — 777 sites)
-const RAW = EIA_BESS_PLANTS;
+// ── EIA Form 860 (2024) — 777 real BESS sites loaded from bess_plants.js ──
+// Source: U.S. EIA Annual Electric Generator Report, Energy Storage tab
+// 777 operating battery storage units · 27,259 MW · 42 states
+const RAW = (typeof EIA_BESS_PLANTS !== 'undefined') ? EIA_BESS_PLANTS : [];
 
 const plants = RAW.map(p => ({...p, iso: ISO_MAP[p.state] || "Non-ISO"}));
 
@@ -273,11 +275,13 @@ function drawDots(fp) {
       tooltip.innerHTML = `
         <div class="tt-name">${p.name}</div>
         <div class="tt-row"><span>Owner</span><span class="tt-val">${p.owner}</span></div>
-        <div class="tt-row"><span>State / ISO</span><span class="tt-val">${p.state} · ${p.iso}</span></div>
-        <div class="tt-row"><span>Capacity</span><span class="tt-val">${p.mw.toLocaleString()} MW / ${p.mwh.toLocaleString()} MWh</span></div>
+        <div class="tt-row"><span>Location</span><span class="tt-val">${p.city?p.city+', ':''}${p.state}${p.county?' · '+p.county:''}</span></div>
+        <div class="tt-row"><span>ISO / BA</span><span class="tt-val">${p.iso}${p.ba?' · '+p.ba:''}</span></div>
+        <div class="tt-row"><span>Capacity</span><span class="tt-val">${p.mw.toLocaleString()} MW${p.mwh?' / '+p.mwh.toLocaleString()+' MWh':''}</span></div>
         <div class="tt-row"><span>Chemistry</span><span class="tt-val">${p.chem}</span></div>
-        <div class="tt-row"><span>Application</span><span class="tt-val">${p.app}</span></div>
-        <div class="tt-row"><span>Online</span><span class="tt-val">${p.year}</span></div>
+        <div class="tt-row"><span>Applications</span><span class="tt-val">${p.app}</span></div>
+        <div class="tt-row"><span>Generator ID</span><span class="tt-val">${p.gen||'N/A'}</span></div>
+        <div class="tt-row"><span>Online</span><span class="tt-val">${p.year||'N/A'}</span></div>
         <span class="tt-badge" style="background:${sc}20;color:${sc};">${p.status}</span>`;
     })
     .on('mousemove', function(event) {
@@ -304,5 +308,4 @@ function redraw() {
 // Map initialises automatically once D3 + TopoJSON fire their onload events above.
 </script>
 </body>
-</html>// EIA real data loaded from bess_plants.js below
-
+</html>
