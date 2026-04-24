@@ -102,12 +102,12 @@
 
     <div class="legend">
       <div class="legend-section">
-        <span class="legend-title">Chemistry</span>
-        <div class="legend-item"><span class="legend-dot" style="background:#185FA5"></span>LFP</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#1D9E75"></span>NMC</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#639922"></span>NCA</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#BA7517"></span>Flow</div>
+        <span class="legend-title">Chemistry (EIA-860)</span>
+        <div class="legend-item"><span class="legend-dot" style="background:#185FA5"></span>Lithium-ion (97%)</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#BA7517"></span>Flow Battery</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#639922"></span>Nickel Iron</div>
         <div class="legend-item"><span class="legend-dot" style="background:#888780"></span>Lead Acid</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#aaaaaa"></span>Other</div>
       </div>
       <div class="legend-sep"></div>
       <div class="legend-section">
@@ -171,9 +171,15 @@ const ISO_MAP = {
 };
 
 const CHEM_COLOR = {
-  "Lithium-ion (LFP)":"#185FA5","Lithium-ion (NMC)":"#1D9E75",
-  "Lithium-ion (NCA)":"#639922","Flow Battery":"#BA7517",
-  "Lead Acid":"#888780","Other":"#D85A30"
+  "Lithium-ion":"#185FA5",
+  "Flow Battery":"#BA7517",
+  "Lead Acid":"#888780",
+  "Nickel Iron":"#639922",
+  "Sodium":"#534AB7",
+  "Zinc Bromide":"#0F6E56",
+  "Metal-Air":"#D85A30",
+  "Other":"#aaaaaa",
+  "Capacitor":"#cccccc"
 };
 const STATUS_COLOR = {
   "Operating":"#1D9E75","Under Construction":"#BA7517",
