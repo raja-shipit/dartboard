@@ -122,14 +122,14 @@
 <script src="shared-nav.js"></script>
 <div class="main">
     <div class="metric-row">
-      <div class="metric"><div class="metric-label">BESS sites</div><div class="metric-value" id="m-sites">—</div><div class="metric-sub">utility-scale ≥1 MW</div></div>
+      <div class="metric"><div class="metric-label">BESS sites</div><div class="metric-value" id="m-sites">—</div><div class="metric-sub">operating + pipeline + retired</div></div>
       <div class="metric"><div class="metric-label">Total capacity</div><div class="metric-value" id="m-mw">—</div><div class="metric-sub">megawatts</div></div>
       <div class="metric"><div class="metric-label">States</div><div class="metric-value" id="m-states">—</div><div class="metric-sub">represented</div></div>
       <div class="metric"><div class="metric-label">Avg site size</div><div class="metric-value" id="m-avg">—</div><div class="metric-sub">MW per site</div></div>
     </div>
 
     <div class="controls">
-      <select id="f-status"><option value="">All statuses</option><option>Operating</option><option>Under Construction</option><option>Planned</option><option>Cancelled</option></select>
+      <select id="f-status"><option value="">All statuses</option><option>Operating</option><option>Under Construction</option><option>Planned</option><option>Retired</option></select>
       <select id="f-iso"><option value="">All ISO regions</option><option>CAISO</option><option>ERCOT</option><option>PJM</option><option>MISO</option><option>NYISO</option><option>ISONE</option><option>SPP</option><option>Non-ISO</option></select>
       <select id="f-chem"><option value="">All chemistries</option><option>Lithium-ion (LFP)</option><option>Lithium-ion (NMC)</option><option>Lithium-ion (NCA)</option><option>Flow Battery</option><option>Lead Acid</option><option>Other</option></select>
       <select id="f-state"><option value="">All states</option></select>
@@ -150,7 +150,7 @@
         <div class="legend-item"><span class="legend-sq" style="background:#1D9E75"></span>Operating</div>
         <div class="legend-item"><span class="legend-sq" style="background:#BA7517"></span>Construction</div>
         <div class="legend-item"><span class="legend-sq" style="background:#185FA5"></span>Planned</div>
-        <div class="legend-item"><span class="legend-sq" style="background:#A32D2D"></span>Cancelled</div>
+        <div class="legend-item"><span class="legend-sq" style="background:#A32D2D"></span>Retired</div>
       </div>
       <div class="legend-sep"></div>
       <div class="legend-section">
@@ -275,7 +275,7 @@ const CHEM_COLOR = {
 };
 const STATUS_COLOR = {
   "Operating":"#1D9E75","Under Construction":"#BA7517",
-  "Planned":"#185FA5","Cancelled":"#A32D2D"
+  "Planned":"#185FA5","Retired":"#A32D2D"
 };
 
 // ── EIA Form 860 (2024) — 777 real BESS sites loaded from bess_plants.js ──
