@@ -1,0 +1,56 @@
+name: Update BESS Data from EIA API
+
+on:
+  # 1. Scheduled: runs on the 1st AND 15th of every month at 08:00 UTC
+  #    (covers EIA's typical release around the 22nd of the prior month)
+  schedule:
+    - cron: '0 8 1 * *'    # 1st of every month
+    - cron: '0 8 15 * *'   # 15th of every month (catches delayed EIA releases)
+
+  # 2. Manual trigger: "Force Update" button on the dashboard calls this
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual trigger'
+        required: false
+        default: 'Manual force update from dashboard'
+
+  # 3. Repository dispatch: triggered programmatically from the page
+  repository_dispatch:
+    types: [update-bess-data]
+
+jobs:
+  update-bess:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to push bess_plants.js + metadata.json
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests pandas
+
+      - name: Pull BESS data from EIA API and rebuild bess_plants.js
+        env:
+          EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+        run: python3 .github/scripts/update_bess.py
+
+      - name: Commit and push updated data
+        run: |
+          git config user.name  "Dartboard Fletch Bot"
+          git config user.email "bot@dartboard.energy"
+          git add bess_plants.js metadata.json
+          if git diff --staged --quiet; then
+            echo "No changes — data is already current"
+          else
+            git commit -m "data: auto-update BESS from EIA API [$(date -u '+%Y-%m-%d')]"
+            git push
+            echo "Pushed updated data to GitHub Pages"
+          fi

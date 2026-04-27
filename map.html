@@ -111,6 +111,38 @@
     font-size: 10px; color: #bbb; pointer-events: none;
   }
 
+
+  /* Data freshness banner */
+  #data-banner {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 8px;
+    padding: 8px 16px; margin-bottom: 0;
+    font-size: 11px; border-bottom: 0.5px solid #e0dfd7;
+    background: #fff;
+  }
+  #data-banner.stale { background: #fffbeb; border-bottom-color: #f0c040; }
+  #data-banner.fresh { background: #f0faf4; border-bottom-color: #a8ddb8; }
+  .banner-left  { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .banner-chip  {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 20px; font-weight: 500; font-size: 11px;
+  }
+  .chip-fresh   { background: #e0f4e8; color: #1a7a3c; }
+  .chip-stale   { background: #fef3cd; color: #7a5a00; }
+  .chip-unknown { background: #f0efe9; color: #888; }
+  .banner-field { color: #555; }
+  .banner-field span { font-weight: 500; color: #1a1a1a; }
+  .banner-note  { font-size: 10px; color: #999; font-style: italic; }
+  #force-update-btn {
+    padding: 4px 12px; border-radius: 6px; font-size: 11px;
+    border: 0.5px solid #185FA5; color: #185FA5; background: #fff;
+    cursor: pointer; font-family: inherit; font-weight: 500;
+    transition: background 0.15s;
+  }
+  #force-update-btn:hover   { background: #eef4ff; }
+  #force-update-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  #update-status { font-size: 10px; color: #888; margin-left: 6px; }
+
 </style>
 </head>
 <body data-page="map">
@@ -122,6 +154,25 @@
   <div id="topnav"></div>
 <script src="shared-nav.js"></script>
 <div class="main">
+
+    <!-- Data freshness banner -->
+    <div id="data-banner" class="chip-unknown">
+      <div class="banner-left">
+        <span class="banner-chip chip-unknown" id="freshness-chip">⏳ Checking data...</span>
+        <span class="banner-field">Last updated: <span id="last-updated">—</span></span>
+        <span class="banner-field">Data as of: <span id="data-as-of">—</span></span>
+        <span class="banner-field">Sites: <span id="banner-sites">—</span></span>
+        <span class="banner-field">Total MW: <span id="banner-mw">—</span></span>
+        <span class="banner-note" id="lag-note">EIA-860M is lagged ~1 month — this is normal</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span id="update-status"></span>
+        <button id="force-update-btn" onclick="forceUpdate()" title="Trigger fresh data pull from EIA API">
+          ↻ Force Update
+        </button>
+      </div>
+    </div>
+
     <div class="metric-row">
       <div class="metric"><div class="metric-label">BESS sites</div><div class="metric-value" id="m-sites">—</div><div class="metric-sub">operating + pipeline + retired</div></div>
       <div class="metric"><div class="metric-label">Total capacity</div><div class="metric-value" id="m-mw">—</div><div class="metric-sub">megawatts</div></div>
@@ -540,6 +591,128 @@ function redraw() {
 }
 
 // Map initialises automatically once D3 + TopoJSON fire their onload events above.
+
+
+// ── Data freshness + force update ─────────────────────────────────────────────
+const GITHUB_OWNER = 'raja-shipit';
+const GITHUB_REPO  = 'dartboard';
+const STALE_DAYS   = 35;   // EIA releases every ~30 days; warn after 35
+
+async function checkDataFreshness() {
+  try {
+    const r = await fetch('metadata.json?_=' + Date.now());
+    if (!r.ok) throw new Error('metadata.json not found');
+    const meta = await r.json();
+
+    // Populate banner fields
+    const updated = new Date(meta.last_updated);
+    const asOf    = new Date(meta.data_as_of);
+    const now     = new Date();
+    const ageDays = Math.floor((now - updated) / 86400000);
+
+    document.getElementById('last-updated').textContent =
+      updated.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+    document.getElementById('data-as-of').textContent =
+      asOf.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+    document.getElementById('banner-sites').textContent =
+      (meta.site_count || 0).toLocaleString();
+    document.getElementById('banner-mw').textContent =
+      (meta.total_mw || 0).toLocaleString() + ' MW';
+
+    const banner = document.getElementById('data-banner');
+    const chip   = document.getElementById('freshness-chip');
+
+    if (ageDays <= STALE_DAYS) {
+      banner.className = 'fresh';
+      chip.className   = 'banner-chip chip-fresh';
+      chip.textContent = `✅ Current  (updated ${ageDays}d ago)`;
+    } else {
+      banner.className = 'stale';
+      chip.className   = 'banner-chip chip-stale';
+      chip.textContent = `⚠️ Stale  (${ageDays}d old — auto-update triggered)`;
+      // Auto-trigger update if data is stale
+      triggerGitHubAction('auto-stale-check');
+    }
+
+    // Update metrics subtitle
+    const sub = document.querySelector('.metric-sub');
+    if (sub) sub.textContent = `as of ${asOf.toLocaleDateString('en-US',{month:'short',year:'numeric'})}`;
+
+  } catch(e) {
+    console.warn('Could not load metadata.json:', e);
+    document.getElementById('freshness-chip').textContent = '⚠️ Data status unknown';
+  }
+}
+
+async function triggerGitHubAction(reason) {
+  const statusEl = document.getElementById('update-status');
+  const btn      = document.getElementById('force-update-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '↻ Updating...'; }
+  if (statusEl) statusEl.textContent = 'Contacting GitHub...';
+
+  try {
+    // Trigger repository_dispatch event — requires a GitHub PAT with repo scope
+    // stored as ACTIONS_TOKEN secret (different from EIA_API_KEY)
+    const token = ''; // Leave blank — see setup instructions
+    if (!token) {
+      // Fallback: show instructions if token not configured
+      if (statusEl) statusEl.textContent =
+        'Manual trigger: go to github.com/' + GITHUB_OWNER + '/' + GITHUB_REPO +
+        '/actions → Update BESS Data → Run workflow';
+      if (btn) { btn.disabled = false; btn.textContent = '↻ Force Update'; }
+      // Open GitHub Actions page directly
+      window.open(
+        `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/update-bess.yml`,
+        '_blank'
+      );
+      return;
+    }
+
+    const resp = await fetch(
+      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/dispatches`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github+json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          event_type: 'update-bess-data',
+          client_payload: { reason }
+        })
+      }
+    );
+
+    if (resp.status === 204) {
+      if (statusEl) statusEl.textContent = '✅ Update triggered! Reloading in 90s...';
+      // GitHub Actions takes ~60-90 seconds to run and push
+      setTimeout(() => location.reload(), 90000);
+    } else {
+      throw new Error(`GitHub API returned ${resp.status}`);
+    }
+  } catch(e) {
+    if (statusEl) statusEl.textContent = '⚠️ Could not auto-trigger. Click to open GitHub Actions.';
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '↗ Open GitHub Actions';
+      btn.onclick = () => window.open(
+        `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/update-bess.yml`,
+        '_blank'
+      );
+    }
+  }
+}
+
+function forceUpdate() {
+  triggerGitHubAction('manual-force-update');
+}
+
+// Run on page load
+window.addEventListener('DOMContentLoaded', () => {
+  checkDataFreshness();
+});
+
 </script>
 </body>
 </html>

@@ -1,0 +1,9 @@
+{
+  "last_updated": "2026-04-27T00:00:00Z",
+  "source": "EIA Form 860 Annual 2024",
+  "site_count": 1379,
+  "total_mw": 102636,
+  "data_as_of": "2024-12-31",
+  "next_eia_release": "2026-05-22",
+  "lag_note": "EIA-860M data is lagged ~1 month. This is normal and expected."
+}
