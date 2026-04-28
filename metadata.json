@@ -1,16 +1,13 @@
 {
-  "last_updated": "2026-04-28T17:10:14Z",
+  "last_updated": "2026-04-28T17:28:07Z",
   "last_updated_date": "2026-04-28",
-  "source": "EIA Form 860M (monthly via API)",
-  "site_count": 1069,
-  "total_mw": 45572.4,
-  "by_status": {
-    "OP": 1066,
-    "SB": 3
-  },
+  "source": "EIA Form 860M Excel (march_generator2026.xlsx)",
+  "site_count": 0,
+  "total_mw": 0,
+  "by_status": {},
   "data_as_of": "2026-03-24",
   "lag_days": 35,
-  "lag_note": "EIA-860M data is lagged ~1 month. This is normal.",
+  "lag_note": "EIA-860M is lagged ~1 month. This is normal.",
   "using_annual": false,
-  "period": "2026-04"
+  "excel_file": "march_generator2026.xlsx"
 }
