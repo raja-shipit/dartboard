@@ -79,7 +79,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <span class="bf">Data as of: <span id="dao">—</span></span>
     <span class="bf">Sites: <span id="bs">—</span></span>
     <span class="bf">MW: <span id="bmw">—</span></span>
-    <span class="bn">EIA-860M lags ~1 month — normal</span>
+    <span class="bn" id="lag-note">EIA-860 Annual 2024 · switching to 860M once API key configured</span>
   </div>
   <div style="display:flex;align-items:center;gap:8px;">
     <span id="fu-status"></span>
@@ -358,7 +358,11 @@ async function checkFreshness(){
     document.getElementById('bs').textContent=(m.site_count||0).toLocaleString();
     document.getElementById('bmw').textContent=(m.total_mw||0).toLocaleString()+' MW';
     const bn=document.getElementById('data-banner'),chip=document.getElementById('fc');
-    if(age<=35){bn.className='fresh';chip.className='banner-chip chip-fresh';chip.textContent=`✅ Current (${age}d ago)`;}
+    const note=document.getElementById('lag-note');
+    const src860=m.source||'EIA-860';
+    const isAnnual=m.using_annual||false;
+    if(note)note.textContent=isAnnual?`${src860} (annual snapshot — switches to 860M once API key set)`:`EIA-860M · ~1 month lag · normal`;
+    if(age<=35){bn.className='fresh';chip.className='banner-chip chip-fresh';chip.textContent=`✅ ${isAnnual?'Annual':'Current'} (${age}d ago)`;}
     else{bn.className='stale';chip.className='banner-chip chip-stale';chip.textContent=`⚠️ Stale (${age}d old)`;}
   }catch(e){document.getElementById('fc').textContent='⚠️ Status unknown';}
 }

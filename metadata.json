@@ -4,6 +4,7 @@
   "site_count": 1379,
   "total_mw": 102636,
   "data_as_of": "2024-12-31",
+  "lag_note": "Currently showing EIA-860 Annual 2024 data (as of Dec 31 2024). Once EIA API key is configured, this will auto-switch to EIA-860M monthly data (~1 month lag).",
   "next_eia_release": "2026-05-22",
-  "lag_note": "EIA-860M data is lagged ~1 month. This is normal and expected."
+  "using_annual": true
 }
