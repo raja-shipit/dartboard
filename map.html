@@ -102,21 +102,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
   <div class="legend">
     <div class="ls">
-      <span class="lt">Chemistry</span>
-      <div class="li"><span class="ld" style="background:#185FA5"></span>Lithium-ion (97%)</div>
+      <span class="lt" style="font-weight:600;color:#444;">● Dot fill = Chemistry</span>
+      <div class="li"><span class="ld" style="background:#185FA5"></span>Lithium-ion (LFP/NMC)</div>
+      <div class="li"><span class="ld" style="background:#1D9E75"></span>Lithium-ion (NMC)</div>
       <div class="li"><span class="ld" style="background:#BA7517"></span>Flow Battery</div>
       <div class="li"><span class="ld" style="background:#639922"></span>Nickel Iron</div>
-      <div class="li"><span class="ld" style="background:#888780"></span>Other</div>
+      <div class="li"><span class="ld" style="background:#888780"></span>Lead Acid</div>
+      <div class="li"><span class="ld" style="background:#D85A30"></span>Other</div>
     </div>
     <div class="lsp"></div>
     <div class="ls">
-      <span class="lt">Status</span>
+      <span class="lt" style="font-weight:600;color:#444;">○ Ring = Status</span>
       <div class="li"><span class="lq" style="background:#1D9E75"></span>Operating</div>
-      <div class="li"><span class="lq" style="background:#BA7517"></span>Standby</div>
-      <div class="li"><span class="lq" style="background:#888780"></span>Out of service</div>
+      <div class="li"><span class="lq" style="background:#BA7517"></span>Under Construction</div>
+      <div class="li"><span class="lq" style="background:#185FA5"></span>Planned</div>
+      <div class="li"><span class="lq" style="background:#A32D2D"></span>Retired</div>
+      <div class="li"><span class="lq" style="background:#888780"></span>Cancelled</div>
     </div>
     <div class="lsp"></div>
-    <div class="ls"><span class="lt">Size</span><div class="li">∝ MW</div></div>
+    <div class="ls"><span class="lt" style="font-weight:600;color:#444;">◎ Size = MW</span></div>
   </div>
   <div class="map-wrap">
     <div id="zc">
@@ -169,19 +173,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 ;</script>
 <script src="bess_plants.js"></script>
 <script>
-const CC={'Lithium-ion':'#185FA5','Flow Battery':'#BA7517','Lead Acid':'#888780','Nickel Iron':'#639922','Sodium':'#534AB7','Other':'#aaaaaa'};
-const SC={'Operating':'#1D9E75','Standby':'#BA7517','Out of service':'#888780','Out of service (returning)':'#639922'};
+const CC={'Lithium-ion (LFP/NMC)':'#185FA5','Lithium-ion (NMC)':'#1D9E75','Flow Battery':'#BA7517','Lead Acid':'#888780','Nickel Iron':'#639922','Sodium':'#534AB7','Other':'#D85A30','Capacitor':'#cccccc'};
+const SC={'Operating':'#1D9E75','Under Construction':'#BA7517','Planned':'#185FA5','Retired':'#A32D2D','Cancelled':'#888780','Standby':'#639922','Out of service':'#888780'};
 const INUM=new Set(['mw','mwh','year']);
 const GITHUB_REPO='raja-shipit/dartboard';
 
 // Data
 const RAW=(typeof EIA_BESS_PLANTS!=='undefined')?EIA_BESS_PLANTS:[];
 const ISO_M={'CISO':'CAISO','ERCO':'ERCOT','PJM':'PJM','MISO':'MISO','NYIS':'NYISO','ISNE':'ISONE','SWPP':'SPP'};
-const STATUS_DISPLAY={'OP':'Operating','SB':'Standby','OS':'Out of service','OA':'Out of service (returning)'};
-const plants=RAW.map(p=>({...p,
-  iso:ISO_M[p.ba]||p.iso||'Non-ISO',
-  status:STATUS_DISPLAY[p.status]||p.status||'Operating'
-}));
+const plants=RAW.map(p=>({...p,iso:ISO_M[p.ba]||p.iso||'Non-ISO'}));
 
 // Filters
 function filt(){
