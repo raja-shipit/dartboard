@@ -33,24 +33,24 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
   <div class="metrics">
     <div class="metric">
-      <div class="metric-label">US installed capacity</div>
-      <div class="metric-value">30+ GW</div>
-      <div class="metric-sub">end of 2024 (EIA-860M)</div>
+      <div class="metric-label">US operating capacity</div>
+      <div class="metric-value">45.6 GW</div>
+      <div class="metric-sub">Mar 2026 · EIA-860M live</div>
     </div>
     <div class="metric">
-      <div class="metric-label">YoY growth</div>
-      <div class="metric-value">+89%</div>
-      <div class="metric-sub">2023 → 2024</div>
+      <div class="metric-label">Operating sites</div>
+      <div class="metric-value">1,069</div>
+      <div class="metric-sub">utility-scale ≥1 MW · 44 states</div>
     </div>
     <div class="metric">
       <div class="metric-label">Avg install cost</div>
-      <div class="metric-value">$280/kWh</div>
-      <div class="metric-sub">utility-scale LFP 2024</div>
+      <div class="metric-value">~$250/kWh</div>
+      <div class="metric-sub">utility-scale LFP 2025-26</div>
     </div>
     <div class="metric">
-      <div class="metric-label">EIA 2026 forecast</div>
-      <div class="metric-value">~57 GW</div>
-      <div class="metric-sub">projected US capacity</div>
+      <div class="metric-label">CAISO dominance</div>
+      <div class="metric-value">35%</div>
+      <div class="metric-sub">of all US BESS capacity</div>
     </div>
   </div>
 
@@ -65,7 +65,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       <div class="card-title">Top 8 states by MW</div>
       <div class="card-sub">Operating capacity</div>
       <div class="chart-wrap" style="height:220px;"><canvas id="statesChart" role="img" aria-label="Horizontal bar chart of top 8 US states by BESS capacity"></canvas></div>
-      <div class="source-note">Source: EIA-860M Apr 2026</div>
+      <div class="source-note">Source: EIA-860M April 2026 live API pull</div>
     </div>
   </div>
 
@@ -114,7 +114,7 @@ window.addEventListener('DOMContentLoaded', () => {
       labels: ['2018','2019','2020','2021','2022','2023','2024','2025e','2026f'],
       datasets: [{
         label: 'Installed GW',
-        data: [0.9, 1.4, 1.7, 4.6, 8.1, 16.0, 30.2, 42.0, 57.0],
+        data: [0.9, 1.4, 1.7, 4.6, 8.1, 16.0, 30.2, 45.6, 62.0],
         borderColor: BLUE, backgroundColor: BLUE + '18',
         fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: BLUE,
         borderDash: [0,0],
@@ -141,8 +141,8 @@ window.addEventListener('DOMContentLoaded', () => {
   new Chart(document.getElementById('statesChart'), {
     type: 'bar',
     data: {
-      labels: ['CA','TX','FL','NV','AZ','NY','IL','NC'],
-      datasets: [{ label: 'MW', data: [9200, 5800, 2100, 1800, 900, 750, 600, 420],
+      labels: ['CA','TX','AZ','NV','FL','NM','IN','HI'],
+      datasets: [{ label: 'MW', data: [15290, 14894, 4992, 1704, 1195, 1136, 589, 540],
         backgroundColor: BLUE + 'cc', borderRadius: 4, borderSkipped: false }]
     },
     options: {

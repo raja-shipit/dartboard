@@ -95,9 +95,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="metric"><div class="ml">Avg site</div><div class="mv" id="m-av">—</div><div class="ms">MW per site</div></div>
   </div>
   <div class="controls">
-    <select id="f-status"><option value="">All statuses</option><option>Operating</option><option>Under Construction</option><option>Planned</option><option>Retired</option></select>
-    <select id="f-iso"><option value="">All ISO regions</option><option>CAISO</option><option>ERCOT</option><option>PJM</option><option>MISO</option><option>NYISO</option><option>ISONE</option><option>SPP</option><option>Non-ISO</option></select>
-    <select id="f-chem"><option value="">All chemistries</option><option>Lithium-ion</option><option>Flow Battery</option><option>Lead Acid</option><option>Nickel Iron</option><option>Other</option></select>
+    <select id="f-status"><option value="">All statuses</option></select>
+    <select id="f-iso"><option value="">All ISO regions</option></select>
+    <select id="f-chem"><option value="">All chemistries</option></select>
     <select id="f-state"><option value="">All states</option></select>
   </div>
   <div class="legend">
@@ -254,10 +254,12 @@ function dots(fp){
 }
 
 function initMap(){
-  // State filter
-  const states=[...new Set(plants.map(p=>p.state))].sort();
-  const sel=document.getElementById('f-state');
-  states.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;sel.appendChild(o);});
+  // Populate all dropdowns dynamically from real data
+  const addOpts=(id,vals)=>{const s=document.getElementById(id);[...vals].sort().forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o);});};
+  addOpts('f-state',  new Set(plants.map(p=>p.state)));
+  addOpts('f-status', new Set(plants.map(p=>p.status)));
+  addOpts('f-iso',    new Set(plants.map(p=>p.iso)));
+  addOpts('f-chem',   new Set(plants.map(p=>p.chem)));
   // Filter change handlers
   ['f-status','f-iso','f-chem','f-state'].forEach(id=>document.getElementById(id).addEventListener('change',redraw));
   // Table header clicks

@@ -46,9 +46,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       <div class="metric-sub">with Fletch continuous audit</div>
     </div>
     <div class="metric metric-danger">
-      <div class="metric-label">Retired/cancelled assets</div>
-      <div class="metric-value">47</div>
-      <div class="metric-sub">EIA-860 failure records</div>
+      <div class="metric-label">Capacity at risk</div>
+      <div class="metric-value">45.6 GW</div>
+      <div class="metric-sub">operating BESS · Mar 2026</div>
     </div>
     <div class="metric">
       <div class="metric-label">US premium increase</div>
@@ -65,7 +65,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <div class="insight-grid">
     <div class="insight risk">
       <div class="insight-label">Risk signal</div>
-      <div class="insight-text">CAISO has the highest retirement rate — 18 assets retired since 2020, driven by thermal runaway events at legacy NMC installations.</div>
+      <div class="insight-text">CAISO leads US BESS with 16.1 GW (35% of national capacity) — highest risk concentration. Texas ERCOT close second at 14.7 GW (32%).</div>
     </div>
     <div class="insight opportunity">
       <div class="insight-label">Fletch opportunity</div>
@@ -182,9 +182,9 @@ window.addEventListener('DOMContentLoaded', () => {
   new Chart(document.getElementById('revenueChart'), {
     type: 'bar',
     data: {
-      labels: ['CAISO','ERCOT','Non-ISO','PJM','MISO','ISONE'],
+      labels: ['CAISO','ERCOT','Non-ISO','MISO','ISONE','PJM'],
       datasets: [{ label: '$M at risk annually',
-        data: [184, 116, 94, 58, 42, 28],
+        data: [322, 294, 229, 23, 16, 13],
         backgroundColor: CORAL + 'cc', borderRadius: 4, borderSkipped: false }]
     },
     options: {
