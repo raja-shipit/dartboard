@@ -1,6 +1,6 @@
 {
-  "last_updated": "2026-04-28T17:36:58Z",
-  "last_updated_date": "2026-04-28",
+  "last_updated": "2026-05-01T17:15:32Z",
+  "last_updated_date": "2026-05-01",
   "source": "EIA Form 860M Excel (march_generator2026.xlsx)",
   "site_count": 1650,
   "total_mw": 122819.8,
@@ -11,7 +11,7 @@
     "Operating": 997,
     "Retired": 46
   },
-  "data_as_of": "2026-03-24",
+  "data_as_of": "2026-03-27",
   "lag_days": 35,
   "lag_note": "EIA-860M is lagged ~1 month. This is normal.",
   "using_annual": false
