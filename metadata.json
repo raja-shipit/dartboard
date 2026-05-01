@@ -1,18 +1,13 @@
 {
-  "last_updated": "2026-04-28T17:36:58Z",
-  "last_updated_date": "2026-04-28",
-  "source": "EIA Form 860M Excel (march_generator2026.xlsx)",
-  "site_count": 1650,
-  "total_mw": 122819.8,
-  "by_status": {
-    "Planned": 217,
-    "Cancelled": 131,
-    "Under Construction": 259,
-    "Operating": 997,
-    "Retired": 46
-  },
-  "data_as_of": "2026-03-24",
+  "last_updated": "2026-05-01T09:28:47Z",
+  "last_updated_date": "2026-05-01",
+  "source": "EIA Form 860M (monthly)",
+  "site_count": 0,
+  "total_mw": 0,
+  "by_status": {},
+  "data_as_of": "2026-03-27",
   "lag_days": 35,
-  "lag_note": "EIA-860M is lagged ~1 month. This is normal.",
-  "using_annual": false
+  "lag_note": "EIA-860M data is typically lagged ~1 month. This is normal \u2014 EIA publishes on the 22nd of each month.",
+  "next_eia_release": "2026-06-22",
+  "eia_source_url": "https://www.eia.gov/electricity/data/eia860m/"
 }
