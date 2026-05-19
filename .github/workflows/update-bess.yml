@@ -1,21 +1,15 @@
 name: Update BESS Data from EIA API
 
 on:
-  # 1. Scheduled: runs on the 1st AND 15th of every month at 08:00 UTC
-  #    (covers EIA's typical release around the 22nd of the prior month)
   schedule:
     - cron: '0 8 1 * *'    # 1st of every month
-    - cron: '0 8 15 * *'   # 15th of every month (catches delayed EIA releases)
-
-  # 2. Manual trigger: "Force Update" button on the dashboard calls this
+    - cron: '0 8 15 * *'   # 15th (catches delayed EIA releases)
   workflow_dispatch:
     inputs:
       reason:
         description: 'Reason for manual trigger'
         required: false
         default: 'Manual force update from dashboard'
-
-  # 3. Repository dispatch: triggered programmatically from the page
   repository_dispatch:
     types: [update-bess-data]
 
@@ -23,11 +17,13 @@ jobs:
   update-bess:
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # needed to push bess_plants.js + metadata.json
+      contents: write
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ACTIONS_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -35,22 +31,36 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install requests pandas
+        run: pip install requests pandas openpyxl
 
-      - name: Pull BESS data from EIA API and rebuild bess_plants.js
+      - name: Pull BESS data from EIA API
         env:
           EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
         run: python3 .github/scripts/update_bess.py
 
-      - name: Commit and push updated data
+      - name: Commit and push
         run: |
           git config user.name  "Dartboard Fletch Bot"
           git config user.email "bot@dartboard.energy"
           git add bess_plants.js metadata.json
           if git diff --staged --quiet; then
-            echo "No changes — data is already current"
+            echo "No changes — data already current"
           else
-            git commit -m "data: auto-update BESS from EIA API [$(date -u '+%Y-%m-%d')]"
+            # Check record count before pushing (0-record guard)
+            SITE_COUNT=$(python3 -c "
+import json
+try:
+    data = json.loads(open('bess_plants.js').read().split('=',1)[1].rstrip(';').strip())
+    print(len(data))
+except:
+    print(0)
+")
+            echo "Site count: $SITE_COUNT"
+            if [ "$SITE_COUNT" -lt 100 ]; then
+              echo "GUARD: Only $SITE_COUNT records — refusing to push (prevents blank map)"
+              exit 1
+            fi
+            git commit -m "data: auto-update BESS from EIA API [$(date -u '+%Y-%m-%d')] — $SITE_COUNT sites"
             git push
-            echo "Pushed updated data to GitHub Pages"
+            echo "Pushed $SITE_COUNT sites to GitHub Pages"
           fi
