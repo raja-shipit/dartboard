@@ -3,13 +3,13 @@ name: Update BESS Data from EIA API
 on:
   schedule:
     - cron: '0 8 1 * *'    # 1st of every month
-    - cron: '0 8 15 * *'   # 15th (catches delayed EIA releases)
+    - cron: '0 8 15 * *'   # 15th
   workflow_dispatch:
     inputs:
       reason:
         description: 'Reason for manual trigger'
         required: false
-        default: 'Manual force update from dashboard'
+        default: 'Manual force update'
   repository_dispatch:
     types: [update-bess-data]
 
@@ -38,7 +38,30 @@ jobs:
           EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
         run: python3 .github/scripts/update_bess.py
 
-      - name: Commit and push
+      - name: Check record count before pushing (0-record guard)
+        run: |
+          SITE_COUNT=$(python3 -c "
+import json, sys
+try:
+    raw = open('bess_plants.js').read()
+    data = json.loads(raw.split('=',1)[1].rstrip(';').strip())
+    print(len(data))
+except Exception as e:
+    print(0)
+")
+          echo "Site count from new pull: $SITE_COUNT"
+          if [ "$SITE_COUNT" -lt 100 ]; then
+            echo "GUARD TRIGGERED: Only $SITE_COUNT records returned from EIA API."
+            echo "This usually means the API key is invalid or EIA is down."
+            echo "Keeping existing bess_plants.js intact — NOT pushing."
+            echo "SKIP_PUSH=true" >> $GITHUB_ENV
+          else
+            echo "Record count OK: $SITE_COUNT sites"
+            echo "SKIP_PUSH=false" >> $GITHUB_ENV
+          fi
+
+      - name: Commit and push (skipped if 0-record guard triggered)
+        if: env.SKIP_PUSH == 'false'
         run: |
           git config user.name  "Dartboard Fletch Bot"
           git config user.email "bot@dartboard.energy"
@@ -46,21 +69,8 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes — data already current"
           else
-            # Check record count before pushing (0-record guard)
-            SITE_COUNT=$(python3 -c "
-import json
-try:
-    data = json.loads(open('bess_plants.js').read().split('=',1)[1].rstrip(';').strip())
-    print(len(data))
-except:
-    print(0)
-")
-            echo "Site count: $SITE_COUNT"
-            if [ "$SITE_COUNT" -lt 100 ]; then
-              echo "GUARD: Only $SITE_COUNT records — refusing to push (prevents blank map)"
-              exit 1
-            fi
-            git commit -m "data: auto-update BESS from EIA API [$(date -u '+%Y-%m-%d')] — $SITE_COUNT sites"
+            SITE_COUNT=$(python3 -c "import json; d=json.loads(open('bess_plants.js').read().split('=',1)[1].rstrip(';')); print(len(d))")
+            git commit -m "data: EIA API update [$(date -u '+%Y-%m-%d')] — $SITE_COUNT sites"
             git push
             echo "Pushed $SITE_COUNT sites to GitHub Pages"
           fi
